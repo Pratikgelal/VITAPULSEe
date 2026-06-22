@@ -1,0 +1,312 @@
+/* responsive.css — Mobile/tablet breakpoints | VitaPulse */
+
+/* ── Tablet ≤ 1024px ────────────────────────────────────────── */
+@media (max-width:1024px) {
+  /* Landing hero */
+  .hero { padding-top:100px; }
+  .hero-h1 { font-size:3.5rem; }
+
+  /* Category cards */
+  .cats-grid { grid-template-columns:1fr; }
+  .cat-card  { min-height:380px; }
+
+  /* Footer */
+  .lfoot-grid { grid-template-columns:1fr 1fr; gap:2rem; }
+
+  /* Dashboard charts */
+  .charts-row { grid-template-columns:1fr; }
+
+  /* Register two-panel */
+  .reg-layout { grid-template-columns:1fr; gap:2rem; }
+  .reg-left   { display:none; }
+}
+
+/* ── Mobile ≤ 768px ─────────────────────────────────────────── */
+@media (max-width:768px) {
+
+  /* ── Landing nav ─────────────────────── */
+  .lnav-links  { display:none; }
+  .lnav-search { display:none; }
+  .btn-login, .btn-register { display:none; }
+  .hamburger { display:block; }
+
+  /* ── Hero ────────────────────────────── */
+  .hero { padding:90px 1.25rem 3rem; text-align:center; }
+  .hero-h1 { font-size:2.8rem; }
+  .hero-sub { font-size:.92rem; }
+  .hero-cta { flex-direction:column; align-items:center; }
+  .c-card   { min-width:260px; height:300px; }
+
+  /* ── Category cards ──────────────────── */
+  .cats { padding:3rem 1.25rem; }
+  .cat-body { padding:1.5rem; }
+  .cat-title { font-size:1.6rem; }
+
+  /* ── Team ────────────────────────────── */
+  .team { padding:4rem 1.25rem; }
+  .team-cards { grid-template-columns:1fr 1fr; }
+
+  /* ── Footer ──────────────────────────── */
+  .lfoot { padding:3rem 1.25rem 1.25rem; }
+  .lfoot-grid { grid-template-columns:1fr; gap:1.75rem; }
+  .lfoot-bottom { flex-direction:column; text-align:center; gap:.5rem; }
+
+  /* ── Sidebar ─────────────────────────── */
+  .sidebar { transform:translateX(-100%); width:280px; }
+  .sidebar.open { transform:translateX(0); box-shadow:8px 0 40px rgba(0,0,0,.7); }
+  .sb-close { display:flex; }
+  .main-area { margin-left:0; }
+  .menu-btn  { display:flex; }
+
+  /* ── Topnav ──────────────────────────── */
+  .topnav-date, .topnav-name { display:none; }
+
+  /* ── Feature grids ───────────────────── */
+  .feat-grid { grid-template-columns:1fr; }
+  .form-2col { grid-template-columns:1fr; }
+  .metrics-row { grid-template-columns:1fr 1fr; }
+  .stats-strip { grid-template-columns:1fr 1fr; }
+
+  /* ── Dashboard welcome ───────────────── */
+  .dash-welcome { flex-direction:column; }
+  .dash-quote   { max-width:100%; }
+
+  /* ── Auth pages ──────────────────────── */
+  .auth-page    { justify-content:center; padding:1.25rem; }
+  .auth-content { align-items:center; }
+  .auth-title-wrap { align-self:center; text-align:center; }
+  .auth-card    { max-width:100%; }
+  .reg-layout   { grid-template-columns:1fr; }
+  .reg-left     { display:none; }
+
+  /* ── Chat ────────────────────────────── */
+  .ai-page .chat-box { height:calc(100vh - 140px); }
+  .cb-bubble { max-width:85%; }
+
+  /* Page padding */
+  .page-content { padding:1.25rem; }
+}
+
+/* ── Small mobile ≤ 480px ───────────────────────────────────── */
+@media (max-width:480px) {
+  .hero-h1 { font-size:2.2rem; }
+  .metrics-row { grid-template-columns:1fr; }
+  .stats-strip { grid-template-columns:1fr; }
+  .qa-btns     { flex-direction:column; }
+  .team-cards  { grid-template-columns:1fr; }
+  .social-grid { grid-template-columns:1fr; }
+  .c-card      { min-width:220px; height:260px; }
+  .reg-features { grid-template-columns:1fr; }
+  .chatbot-win { width:300px; }
+  .lfoot-links { flex-direction:column; gap:.4rem; }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   v10 MOBILE ADDITIONS — Dashboard, wellness pages, admin
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Dashboard grid cards ────────────────────────────────────── */
+@media (max-width: 900px) {
+  .vp-features-grid  { grid-template-columns: 1fr 1fr !important; }
+  .vp-grid-3         { grid-template-columns: 1fr 1fr !important; }
+  .vp-grid-2         { grid-template-columns: 1fr !important; }
+  .charts-row        { grid-template-columns: 1fr !important; }
+  .metrics-row       { grid-template-columns: 1fr 1fr !important; }
+  .nutr-page .nutr-header { flex-direction: column; gap: .75rem; }
+  .nutr-header-actions { width: 100%; }
+  .nutr-header-actions .report-download-btn { width: 100%; justify-content: center; }
+}
+
+@media (max-width: 768px) {
+  /* ── Wellness feature pages ─────────────────────────────── */
+  .nutr-page { padding: .75rem !important; }
+  .vp-features-grid  { grid-template-columns: 1fr !important; }
+  .vp-grid-3         { grid-template-columns: 1fr !important; }
+
+  /* ── Admin tables ───────────────────────────────────────── */
+  .admin-table-wrap { overflow-x: auto; }
+  .admin-table-wrap table { min-width: 600px; }
+
+  /* ── Feature card grids ─────────────────────────────────── */
+  div[style*="grid-template-columns:1fr 1fr"] {
+    grid-template-columns: 1fr !important;
+  }
+  div[style*="grid-template-columns:repeat(3"] {
+    grid-template-columns: 1fr 1fr !important;
+  }
+  div[style*="grid-template-columns:repeat(4"] {
+    grid-template-columns: 1fr 1fr !important;
+  }
+
+  /* ── Report stat row ────────────────────────────────────── */
+  div[style*="grid-template-columns:repeat(3,1fr)"],
+  div[style*="grid-template-columns:repeat(4,1fr)"] {
+    grid-template-columns: 1fr 1fr !important;
+  }
+
+  /* ── Wellness two-col grids ─────────────────────────────── */
+  div[style*="display:grid;grid-template-columns:1fr 1fr;"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* ── Landing feature panels ─────────────────────────────── */
+  #feature-panels { padding: 0 0 2rem; }
+  #feature-panels .feat-mini-card { padding: .85rem; }
+  div[style*="grid-template-columns:repeat(auto-fill,minmax(220px"] {
+    grid-template-columns: 1fr 1fr !important;
+  }
+
+  /* ── Medicine checker times grid ────────────────────────── */
+  #timesContainer input { margin-bottom: .4rem; }
+
+  /* ── Outbreak banner ────────────────────────────────────── */
+  .outbreak-banner { flex-direction: column; gap: .5rem; }
+  .ob-badge { align-self: flex-start; }
+
+  /* ── Chatbot widget ─────────────────────────────────────── */
+  .chatbot-win { width: calc(100vw - 32px) !important; right: -4px !important; }
+}
+
+@media (max-width: 480px) {
+  /* ── Auth pages ─────────────────────────────────────────── */
+  .auth-left { display: none; }
+  .auth-right { width: 100%; }
+
+  /* ── Landing hero ───────────────────────────────────────── */
+  .hero-h1 { font-size: 2rem !important; }
+  .hero-sub { font-size: .85rem !important; }
+
+  /* ── Mini feature cards ─────────────────────────────────── */
+  div[style*="grid-template-columns:repeat(auto-fill,minmax(220px"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* ── Stats strips ───────────────────────────────────────── */
+  div[style*="grid-template-columns:repeat(3,1fr)"],
+  div[style*="grid-template-columns:repeat(4,1fr)"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* ── Medicine checker table ─────────────────────────────── */
+  table { font-size: .72rem; }
+  td, th { padding: .3rem .4rem !important; }
+
+  /* ── Med toast ──────────────────────────────────────────── */
+  #medToast { right: 8px !important; left: 8px !important; max-width: none !important; }
+}
+
+
+/* ═══════════════════════════════════════════════════════
+   VitaPulse v11 — Full Mobile Responsive CSS
+   ═══════════════════════════════════════════════════════ */
+
+/* ── Sidebar + Layout ────────────────────────────────── */
+@media (max-width: 1024px) {
+  .sidebar { width: 260px; }
+  .main-wrap { margin-left: 0 !important; }
+}
+
+@media (max-width: 768px) {
+  /* Sidebar becomes overlay on mobile */
+  .sidebar {
+    position: fixed; left: -280px; top: 0; bottom: 0;
+    z-index: 500; width: 260px !important;
+    transition: left .3s ease;
+    box-shadow: 4px 0 24px rgba(0,0,0,.5);
+  }
+  .sidebar.open { left: 0 !important; }
+  .main-wrap { margin-left: 0 !important; }
+  .sb-close { display: flex !important; align-items: center; justify-content: center; }
+
+  /* Topnav */
+  .topnav { padding: 0 .75rem !important; }
+  .topnav-date { display: none; }
+  .breadcrumb { font-size: .78rem; }
+
+  /* Dashboard page padding */
+  .dash-page, .nutr-page { padding: .75rem !important; }
+
+  /* Dashboard welcome */
+  .dash-welcome { flex-direction: column; gap: .75rem !important; }
+  .dash-quote { display: none; }
+  .dash-greeting { font-size: 1.5rem !important; }
+
+  /* Metric cards */
+  .metrics-row { grid-template-columns: 1fr 1fr !important; gap: .6rem !important; }
+
+  /* Feature grids */
+  .vp-features-grid { grid-template-columns: 1fr !important; }
+  .vp-grid-3 { grid-template-columns: 1fr !important; }
+  .vp-grid-2 { grid-template-columns: 1fr !important; }
+  .charts-row { grid-template-columns: 1fr !important; }
+
+  /* Nutr page headers */
+  .nutr-header { flex-direction: column; gap: .75rem; }
+  .nutr-header-actions { width: 100%; display: flex; gap: .5rem; flex-wrap: wrap; }
+  .nutr-header-actions a { flex: 1; justify-content: center; min-width: 120px; }
+
+  /* Two-column → single column */
+  div[style*="grid-template-columns:1fr 1fr"],
+  div[style*="grid-template-columns: 1fr 1fr"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Stats grids */
+  div[style*="grid-template-columns:repeat(3,1fr)"],
+  div[style*="grid-template-columns:repeat(4,1fr)"] {
+    grid-template-columns: 1fr 1fr !important;
+  }
+
+  /* Tables scroll */
+  table { font-size: .78rem; }
+  .admin-table-wrap, div[style*="overflow-x:auto"] { overflow-x: auto; }
+
+  /* Reports */
+  .report-stat { padding: .6rem !important; }
+  .report-stat-val { font-size: 1.3rem !important; }
+
+  /* Auth pages */
+  .auth-left { display: none !important; }
+  .auth-right { width: 100% !important; max-width: 100% !important; border-radius: 0 !important; }
+
+  /* Outbreak banners */
+  .outbreak-banner { flex-direction: column; gap: .5rem; }
+  .ob-badge { align-self: flex-start; }
+
+  /* Medicine toast */
+  #medToast { right: 8px !important; left: 8px !important; min-width: auto !important; max-width: none !important; }
+
+  /* Chatbot */
+  .chatbot-win { width: calc(100vw - 24px) !important; right: -4px !important; max-height: 75vh !important; }
+
+  /* Index cats */
+  .cats-grid { grid-template-columns: 1fr !important; }
+  .cfp-grid { grid-template-columns: 1fr 1fr !important; }
+
+  /* Quick action buttons */
+  .qa-grid { grid-template-columns: repeat(3,1fr) !important; gap: .4rem !important; }
+  .qa-btn { font-size: .7rem !important; padding: .5rem .3rem !important; }
+}
+
+@media (max-width: 480px) {
+  .metrics-row { grid-template-columns: 1fr !important; }
+  .cfp-grid { grid-template-columns: 1fr !important; }
+  div[style*="grid-template-columns:repeat(3,1fr)"],
+  div[style*="grid-template-columns:repeat(4,1fr)"] {
+    grid-template-columns: 1fr !important;
+  }
+  .qa-grid { grid-template-columns: repeat(2,1fr) !important; }
+  .hero-h1 { font-size: 1.8rem !important; line-height: 1.2 !important; }
+  .hero-sub { font-size: .82rem !important; }
+  .cats { padding: 1.5rem 0 !important; }
+  .nutr-title { font-size: 1.1rem !important; }
+  .vp-feature-card { padding: 1rem !important; }
+}
+
+/* ── Sidebar overlay backdrop ────────────────────────── */
+#sidebarBackdrop {
+  display: none;
+  position: fixed; inset: 0; z-index: 499;
+  background: rgba(0,0,0,.5);
+}
+#sidebarBackdrop.show { display: block; }

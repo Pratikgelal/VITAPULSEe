@@ -1,0 +1,230 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Profile{% endblock %}
+
+{% block body %}
+
+<style>
+/* Target the entire page background */
+body{
+    background-color:#121214;
+    margin:0;
+    padding:0;
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;
+}
+
+/* Form Container Layout */
+form{
+    width:100%;
+    max-width:500px;
+
+    /* FIXED THIS LINE */
+    margin:2rem auto;
+    padding:2.5rem;
+
+    background-color:#1e1e24;
+    border-radius:16px;
+    box-shadow:0 12px 32px rgba(0,0,0,0.4);
+
+    color:#f5f5f7;
+    box-sizing:border-box;
+}
+
+/* Form Group spacing */
+.form-group{
+    margin-bottom:1.5rem;
+    display:flex;
+    flex-direction:column;
+}
+
+/* Labels styling */
+.form-group label{
+    font-size:0.85rem;
+    font-weight:600;
+    margin-bottom:0.6rem;
+    color:#a0aec0;
+    text-transform:uppercase;
+    letter-spacing:0.8px;
+}
+
+/* Input and Select fields styling */
+.form-group input,
+.form-group select{
+    padding:0.8rem 1rem;
+    font-size:1rem;
+    background-color:#2d2d34;
+    border:2px solid #3f3f46;
+    border-radius:8px;
+    color:#ffffff;
+
+    transition:border-color .2s ease,
+               box-shadow .2s ease;
+
+    outline:none;
+}
+
+/* Focus states */
+.form-group input:focus,
+.form-group select:focus{
+    border-color:#00d2c4;
+    box-shadow:0 0 0 3px rgba(0,210,196,.15);
+}
+
+/* Dropdown menu */
+.form-group select option{
+    background-color:#2d2d34;
+    color:#ffffff;
+}
+
+/* Submit button */
+.btn-submit{
+    width:100%;
+
+    padding:.9rem;
+
+    font-size:1rem;
+    font-weight:700;
+
+    color:#121214;
+
+    background-color:#00d2c4;
+
+    border:none;
+    border-radius:8px;
+
+    cursor:pointer;
+
+    transition:background-color .2s ease,
+               transform .1s ease;
+
+    margin-top:.75rem;
+}
+
+/* Button hover */
+.btn-submit:hover{
+    background-color:#00b8ac;
+}
+
+.btn-submit:active{
+    transform:scale(.98);
+}
+</style>
+
+<form action="{{ url_for('profile.edit_profile') }}" method="POST">
+
+    <div class="form-group">
+
+        <label for="full_name">Full Name</label>
+
+        <input
+            type="text"
+            id="full_name"
+            name="full_name"
+            value="{{ user.name or user.full_name or '' }}"
+        >
+
+    </div>
+
+    <div class="form-group">
+
+        <label for="phone">Phone Number</label>
+
+        <input
+            type="text"
+            id="phone"
+            name="phone"
+            value="{{ user.phone or '' }}"
+        >
+
+    </div>
+
+    <div class="form-group">
+
+        <label for="age">Age</label>
+
+        <input
+            type="number"
+            id="age"
+            name="age"
+            value="{{ user.age or '' }}"
+        >
+
+    </div>
+
+    <div class="form-group">
+
+        <label for="height_cm">Height (cm)</label>
+
+        <input
+            type="number"
+            step="0.1"
+            id="height_cm"
+            name="height_cm"
+            value="{{ user.height_cm or '' }}"
+        >
+
+    </div>
+
+    <div class="form-group">
+
+        <label for="weight_kg">Weight (kg)</label>
+
+        <input
+            type="number"
+            step="0.1"
+            id="weight_kg"
+            name="weight_kg"
+            value="{{ user.weight_kg or '' }}"
+        >
+
+    </div>
+
+    <div class="form-group">
+
+        <label for="activity_level">Activity Level</label>
+
+        <select id="activity_level" name="activity_level">
+
+            <option value="1.2"
+            {% if user.activity_level == 1.2 %}
+            selected
+            {% endif %}>
+            Sedentary
+            </option>
+
+            <option value="1.375"
+            {% if user.activity_level == 1.375 %}
+            selected
+            {% endif %}>
+            Lightly Active
+            </option>
+
+            <option value="1.55"
+            {% if user.activity_level == 1.55 or not user.activity_level %}
+            selected
+            {% endif %}>
+            Moderately Active
+            </option>
+
+            <option value="1.725"
+            {% if user.activity_level == 1.725 %}
+            selected
+            {% endif %}>
+            Very Active
+            </option>
+
+        </select>
+
+    </div>
+
+    <button type="submit" class="btn-submit">
+        Save Changes
+    </button>
+
+</form>
+
+{% endblock %}
