@@ -9,7 +9,7 @@ class UserModel(BaseModel):
     @classmethod
     def create(cls, name, email, password):
         return cls.execute(
-            'INSERT INTO users(name,email,password_hash,role,created_at) VALUES(%s,%s,%s,"user",NOW())',
+            "INSERT INTO users(name,email,password_hash,role,created_at) VALUES(%s,%s,%s,'user',NOW())",
             (name, email, hash_password(password))
         )
 
