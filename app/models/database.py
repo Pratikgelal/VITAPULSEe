@@ -1,4 +1,4 @@
-"""app/database.py — MySQL DictCursor singleton wrapper"""
+"""app/database.py — MySQL DictCursor singleton wrapper with SSL support"""
 import pymysql
 import pymysql.cursors
 from flask import current_app, g
@@ -19,6 +19,8 @@ class Database:
                 charset='utf8mb4',
                 cursorclass=pymysql.cursors.DictCursor,
                 autocommit=False,
+                # Enforces secure TLS/SSL handshake required by Aiven Cloud
+                ssl={"ssl": {}}
             )
         return g.db_conn
 
