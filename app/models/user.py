@@ -7,10 +7,10 @@ class UserModel(BaseModel):
     TABLE = 'users'
 
     @classmethod
-    def create(cls, full_name, email, password):
+    def create(cls, name, email, password):
         return cls.execute(
-            'INSERT INTO users(full_name,email,password_hash,role,created_at) VALUES(%s,%s,%s,"user",NOW())',
-            (full_name, email, hash_password(password))
+            'INSERT INTO users(name,email,password_hash,role,created_at) VALUES(%s,%s,%s,"user",NOW())',
+            (name, email, hash_password(password))
         )
 
     @classmethod
@@ -34,11 +34,11 @@ class UserModel(BaseModel):
         return bool(cls.fetch_one('SELECT id FROM users WHERE email=%s LIMIT 1', (email,)))
 
     @classmethod
-    def update_profile(cls, uid, full_name, phone, bio=''):
-        """Update user profile: full_name, phone, bio"""
+    def update_profile(cls, uid, name, phone, bio=''):
+        """Update user profile: name, phone, bio"""
         return cls.execute(
-            'UPDATE users SET full_name=%s, phone=%s, bio=%s, updated_at=NOW() WHERE id=%s',
-            (full_name, phone, bio, uid)
+            'UPDATE users SET name=%s, phone=%s, bio=%s, updated_at=NOW() WHERE id=%s',
+            (name, phone, bio, uid)
         )
 
     @classmethod
@@ -63,23 +63,24 @@ class UserModel(BaseModel):
     @classmethod
     def get_all(cls):
         return cls.fetch_all(
-            'SELECT id,full_name,email,role,created_at FROM users ORDER BY created_at DESC'
+            'SELECT id,name,email,role,created_at FROM users ORDER BY created_at DESC'
         )
     # ──────────────────────────────────────────────────────────────────────
     # ADMIN CONTROL PANEL METHODS
     # ──────────────────────────────────────────────────────────────────────
+
     @classmethod
     def get_all_detailed(cls, search=''):
         if search:
             return cls.fetch_all(
-                'SELECT id,full_name,email,role,phone,is_active,created_at,'
+                'SELECT id,name,email,role,phone,is_active,created_at,'
                 'age,gender,weight_kg,height_cm,goal '
-                'FROM users WHERE full_name LIKE %s OR email LIKE %s '
+                'FROM users WHERE name LIKE %s OR email LIKE %s '
                 'ORDER BY created_at DESC',
                 (f'%{search}%', f'%{search}%')
             )
         return cls.fetch_all(
-            'SELECT id,full_name,email,role,phone,is_active,created_at,'
+            'SELECT id,name,email,role,phone,is_active,created_at,'
             'age,gender,weight_kg,height_cm,goal '
             'FROM users ORDER BY created_at DESC'
         )
@@ -104,10 +105,10 @@ class UserModel(BaseModel):
         return int(row['cnt']) if row else 0
 
     @classmethod
-    def admin_update(cls, uid, full_name, email, role, is_active):
+    def admin_update(cls, uid, name, email, role, is_active):
         return cls.execute(
-            'UPDATE users SET full_name=%s, email=%s, role=%s, is_active=%s WHERE id=%s',
-            (full_name, email, role, is_active, uid)
+            'UPDATE users SET name=%s, email=%s, role=%s, is_active=%s WHERE id=%s',
+            (name, email, role, is_active, uid)
         )
 
     @classmethod
@@ -117,9 +118,9 @@ class UserModel(BaseModel):
     @classmethod
     def admin_delete(cls, uid):
         # Clean up related records first (FK-safe deletion)
-        tables = ['meals','calorie_logs','custom_foods','bmi_records','notifications',
-                  'macro_targets','sleep_logs','mood_logs','weight_logs','workouts',
-                  'medicines','medicine_logs','health_expenses','support_messages']
+        tables = ['meals', 'calorie_logs', 'custom_foods', 'bmi_records', 'notifications',
+                  'macro_targets', 'sleep_logs', 'mood_logs', 'weight_logs', 'workouts',
+                  'medicines', 'medicine_logs', 'health_expenses', 'support_messages']
         for t in tables:
             try:
                 cls.execute(f'DELETE FROM {t} WHERE user_id=%s', (uid,))
@@ -129,4 +130,4 @@ class UserModel(BaseModel):
 
     @classmethod
     def get_admins(cls):
-        return cls.fetch_all("SELECT id, email, full_name FROM users WHERE role='admin' AND is_active=1")
+        return cls.fetch_all("SELECT id, email, name FROM users WHERE role='admin' AND is_active=1")
