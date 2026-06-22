@@ -35,11 +35,16 @@ class AuthController(BaseController):
             return cls.render('login.html')
         # Handle case where column might be missing or set to 0
         if user.get('is_active') is not None and user.get('is_active') == 0:
-            cls.flash_err('Your account has been deactivated. Please contact support.')
+            cls.flash_err(
+                'Your account has been deactivated. Please contact support.')
             return cls.render('login.html')
         login_user(user)
-        session.permanent = True   # <-- ADD THIS LINE (makes session survive browser restart)
-        cls.flash_ok(f'Welcome back, {user["full_name"].split()[0]}!')
+        session.permanent = True   # Makes session survive browser restart
+
+        # Aligned with database 'name' field
+        display_name = user.get('name') or user.get('full_name', 'User')
+        cls.flash_ok(f'Welcome back, {display_name.split()[0]}!')
+
         nxt = request.args.get('next', '')
         if nxt and nxt.startswith('/'):
             return redirect(nxt)
@@ -52,7 +57,8 @@ class AuthController(BaseController):
 
     @classmethod
     def process_register(cls):
-        name = sanitize(cls.form('full_name')).strip()
+        # Fallback to catch both 'name' or 'full_name' from HTML inputs
+        name = sanitize(cls.form('name') or cls.form('full_name')).strip()
         email = sanitize(cls.form('email')).lower().strip()
         pwd = cls.form('password')
         cpwd = cls.form('confirm_password')
@@ -60,7 +66,8 @@ class AuthController(BaseController):
 
         errors = {}
         form_data = {
-            'full_name': name,
+            'name': name,
+            'full_name': name,  # Kept for template compatibility
             'email': email,
             'terms': terms
         }
@@ -88,12 +95,14 @@ class AuthController(BaseController):
         if errors:
             return cls.render('register.html', errors=errors, form_data=form_data)
 
+        # Uses the updated model function signature
         uid = UserModel.create(name, email, pwd)
         if not uid:
             cls.flash_err('Registration failed. Please try again.')
             return cls.render('register.html', errors={}, form_data=form_data)
 
-        cls.flash_ok('Account created successfully! Please log in with your credentials.')
+        cls.flash_ok(
+            'Account created successfully! Please log in with your credentials.')
         return cls.redirect_to('auth.login')
 
     # ── Google OAuth (with full exception handling) ──────────
@@ -112,8 +121,10 @@ class AuthController(BaseController):
             return oauth.google.authorize_redirect(redirect_uri, state=state)
 
         except Exception as e:
-            current_app.logger.error(f'Google login init error: {str(e)}', exc_info=True)
-            cls.flash_err('Unable to start Google sign‑in. Please try again later.')
+            current_app.logger.error(
+                f'Google login init error: {str(e)}', exc_info=True)
+            cls.flash_err(
+                'Unable to start Google sign‑in. Please try again later.')
             return redirect(url_for('auth.login'))
 
     @classmethod
@@ -123,7 +134,8 @@ class AuthController(BaseController):
         stored_state = session.pop('oauth_state', None)
         request_state = request.args.get('state')
         if not stored_state or stored_state != request_state:
-            current_app.logger.error(f'State mismatch: stored={stored_state}, received={request_state}')
+            current_app.logger.error(
+                f'State mismatch: stored={stored_state}, received={request_state}')
             cls.flash_err('Security validation failed. Please try again.')
             return redirect(url_for('auth.login'))
 
@@ -132,15 +144,18 @@ class AuthController(BaseController):
             token = oauth.google.authorize_access_token()
 
             # Get user info from Google UserInfo endpoint
-            resp = oauth.google.get('https://www.googleapis.com/oauth2/v3/userinfo')
+            resp = oauth.google.get(
+                'https://www.googleapis.com/oauth2/v3/userinfo')
             if resp.status_code != 200:
-                current_app.logger.error(f'Google userinfo failed: {resp.status_code} - {resp.text}')
-                cls.flash_err('Could not retrieve your profile from Google. Please try again.')
+                current_app.logger.error(
+                    f'Google userinfo failed: {resp.status_code} - {resp.text}')
+                cls.flash_err(
+                    'Could not retrieve your profile from Google. Please try again.')
                 return redirect(url_for('auth.login'))
 
             user_info = resp.json()
             email = user_info.get('email', '').lower()
-            full_name = user_info.get('name', '')
+            name = user_info.get('name', '')
             avatar = user_info.get('picture', '')
 
             if not email:
@@ -151,25 +166,30 @@ class AuthController(BaseController):
 
             if user:
                 login_user(user)
-                session.permanent = True   # <-- ADD THIS LINE
-                cls.flash_ok(f'Welcome back, {user["full_name"].split()[0]}!')
+                session.permanent = True
+                display_name = user.get(
+                    'name') or user.get('full_name', 'User')
+                cls.flash_ok(f'Welcome back, {display_name.split()[0]}!')
                 return redirect(url_for('dashboard.index'))
             else:
                 # Create a new account with a random password (user will use Google only)
                 temp_password = secrets.token_urlsafe(16)
-                uid = UserModel.create(full_name, email, temp_password)
+                uid = UserModel.create(name, email, temp_password)
                 if uid:
                     user = UserModel.find_by_id(uid)
                     login_user(user)
-                    session.permanent = True   # <-- ADD THIS LINE
-                    cls.flash_ok('Account created with Google! Welcome to VitaPulse 🎉')
+                    session.permanent = True
+                    cls.flash_ok(
+                        'Account created with Google! Welcome to VitaPulse 🎉')
                     return redirect(url_for('dashboard.index'))
                 else:
-                    cls.flash_err('Could not create account. Please try again.')
+                    cls.flash_err(
+                        'Could not create account. Please try again.')
                     return redirect(url_for('auth.register'))
 
         except Exception as e:
-            current_app.logger.error(f'Google OAuth callback error: {str(e)}', exc_info=True)
+            current_app.logger.error(
+                f'Google OAuth callback error: {str(e)}', exc_info=True)
             cls.flash_err('Google authentication failed. Please try again.')
             return redirect(url_for('auth.login'))
 
@@ -194,7 +214,8 @@ class AuthController(BaseController):
         user = UserModel.find_by_email(email)
         if user:
             current_app.logger.info(f'Password reset requested for {email}')
-        cls.flash_ok('If this email is registered, a reset link has been sent.')
+        cls.flash_ok(
+            'If this email is registered, a reset link has been sent.')
         return cls.redirect_to('auth.login')
 
     @classmethod
@@ -207,7 +228,8 @@ class AuthController(BaseController):
         new_pwd = cls.form('new_password')
         confirm = cls.form('confirm_password')
         if not is_strong_password(new_pwd):
-            cls.flash_err('Password needs 8+ chars with uppercase, lowercase and number.')
+            cls.flash_err(
+                'Password needs 8+ chars with uppercase, lowercase and number.')
             return cls.render('reset_password.html')
         if new_pwd != confirm:
             cls.flash_err('Passwords do not match.')
@@ -217,10 +239,11 @@ class AuthController(BaseController):
             UserModel.update_password(user['id'], new_pwd)
             cls.flash_ok('Password reset successfully! Please sign in.')
         return cls.redirect_to('auth.login')
+
     @classmethod
     def contact_form(cls):
         """Public contact form from homepage — saves to support_messages with user_id=0."""
-        from flask import request, redirect, url_for, flash, jsonify
+        from flask import request, redirect, url_for, flash
         from app.models.support import SupportModel
         full_name = request.form.get('full_name', '').strip()
         email = request.form.get('email', '').strip()
