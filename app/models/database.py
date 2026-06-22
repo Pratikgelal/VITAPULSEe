@@ -1,4 +1,5 @@
-"""app/database.py — MySQL DictCursor singleton wrapper with SSL support"""
+"""app/models/database.py — MySQL DictCursor singleton wrapper with TLS context"""
+import ssl
 import pymysql
 import pymysql.cursors
 from flask import current_app, g
@@ -10,6 +11,11 @@ class Database:
 
     def _conn(self):
         if 'db_conn' not in g:
+            # Create a secure TLS context for cloud databases like Aiven
+            ssl_context = ssl.create_default_context()
+            ssl_context.check_hostname = False
+            ssl_context.verify_mode = ssl.CERT_NONE
+
             g.db_conn = pymysql.connect(
                 host=current_app.config['DB_HOST'],
                 port=current_app.config['DB_PORT'],
@@ -19,8 +25,8 @@ class Database:
                 charset='utf8mb4',
                 cursorclass=pymysql.cursors.DictCursor,
                 autocommit=False,
-                # Enforces secure TLS/SSL handshake required by Aiven Cloud
-                ssl={"ssl": {}}
+                # Force PyMySQL to tunnel through the TLS encryption context
+                ssl=ssl_context
             )
         return g.db_conn
 
