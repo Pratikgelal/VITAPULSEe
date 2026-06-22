@@ -7,9 +7,9 @@ class WorkoutModel(BaseModel):
 
     @classmethod
     def log(cls, uid, wtype, duration, burned, notes, date):
-        # Changed 'duration_min' to 'duration' to match database structure
+        # Updated columns to match schema: activity_type and duration_minutes
         return cls.execute(
-            'INSERT INTO workouts(user_id, workout_type, duration, calories_burned, notes, log_date, created_at) VALUES(%s, %s, %s, %s, %s, %s, NOW())',
+            'INSERT INTO workouts(user_id, activity_type, duration_minutes, calories_burned, notes, log_date, created_at) VALUES(%s, %s, %s, %s, %s, %s, NOW())',
             (uid, wtype, duration, burned, notes, date)
         )
 
@@ -19,9 +19,9 @@ class WorkoutModel(BaseModel):
 
     @classmethod
     def week_total(cls, uid, start, end):
-        # Changed 'duration_min' to 'duration' to match database structure
+        # Updated SUM target to duration_minutes to match schema
         row = cls.fetch_one(
-            'SELECT COUNT(*) AS sessions, COALESCE(SUM(duration), 0) AS mins, COALESCE(SUM(calories_burned), 0) AS burned FROM workouts WHERE user_id=%s AND log_date BETWEEN %s AND %s',
+            'SELECT COUNT(*) AS sessions, COALESCE(SUM(duration_minutes), 0) AS mins, COALESCE(SUM(calories_burned), 0) AS burned FROM workouts WHERE user_id=%s AND log_date BETWEEN %s AND %s',
             (uid, start, end)
         )
         return row or {'sessions': 0, 'mins': 0, 'burned': 0}
