@@ -101,9 +101,9 @@ class AuthController(BaseController):
             cls.flash_err('Registration failed. Please try again.')
             return cls.render('register.html', errors={}, form_data=form_data)
 
-        cls.flash_ok(
-            'Account created successfully! Please log in with your credentials.')
-        return cls.redirect_to('auth.login')
+            cls.flash_ok(
+                'Account created successfully! Please log in with your credentials.')
+        return redirect('/auth/login')
 
     # ── Google OAuth (with full exception handling) ──────────
     @classmethod
