@@ -1,71 +1,137 @@
-"""
-app/auth.py — Authentication Helpers & Session Management
-"""
-from datetime import datetime, timedelta
-import re
-from flask import session, current_app
-import werkzeug.security as security
+"""app/models/user.py — User auth + profile | Feature: Registration/Login"""
+from app.models.base_model import BaseModel
+from app.auth import hash_password, verify_password
 
 
-def hash_password(password: str) -> str:
-    """Securely hash a plain-text password using modern defaults."""
-    return security.generate_password_hash(password)
+class UserModel(BaseModel):
+    TABLE = 'users'
 
+    @classmethod
+    def create(cls, name, email, password):
+        """Creates a new user and returns the new auto-incremented primary key ID"""
+        cls.execute(
+            "INSERT INTO users(name,email,password_hash,role,created_at) VALUES(%s,%s,%s,'user',NOW())",
+            (name, email, hash_password(password))
+        )
+        # Fetch the newly created record to pass the accurate ID back to the controller
+        user = cls.find_by_email(email)
+        return user['id'] if user else None
 
-def verify_password(password: str, hashed: str) -> bool:
-    """Verify a plain-text password against a hashed match from the database."""
-    if not hashed:
-        return False
-    return security.check_password_hash(hashed, password)
+    @classmethod
+    def find_by_email(cls, email):
+        return cls.fetch_one('SELECT * FROM users WHERE email=%s LIMIT 1', (email,))
 
+    @classmethod
+    def find_by_id(cls, user_id):
+        """Fetch a single user by primary key"""
+        return cls.fetch_one('SELECT * FROM users WHERE id=%s LIMIT 1', (user_id,))
 
-def login_user(user: dict) -> None:
-    """
-    Log a user into the active session.
-    Aligns with the updated database schema using 'name'.
-    """
-    session.clear()
-    session['user_id'] = user.get('id')
-    session['email'] = user.get('email')
-    session['role'] = user.get('role', 'user')
+    @classmethod
+    def authenticate(cls, email, password):
+        u = cls.find_by_email(email)
+        if u and verify_password(password, u['password_hash']):
+            return u
+        return None
 
-    # Safely checks for 'name' first, falls back to 'full_name' or 'User'
-    session['full_name'] = user.get('name') or user.get('full_name') or 'User'
+    @classmethod
+    def email_exists(cls, email) -> bool:
+        return bool(cls.fetch_one('SELECT id FROM users WHERE email=%s LIMIT 1', (email,)))
 
-    session.permanent = True
+    @classmethod
+    def update_profile(cls, uid, name, phone, bio=''):
+        """Update user profile: name, phone, bio"""
+        return cls.execute(
+            'UPDATE users SET name=%s, phone=%s, bio=%s, updated_at=NOW() WHERE id=%s',
+            (name, phone, bio, uid)
+        )
 
+    @classmethod
+    def update_phone(cls, uid, phone):
+        """Update only phone number"""
+        return cls.execute('UPDATE users SET phone=%s WHERE id=%s', (phone, uid))
 
-def logout_user() -> None:
-    """Clear all session data to log out the user."""
-    session.clear()
+    @classmethod
+    def update_health(cls, uid, age, gender, weight_kg, height_cm, goal, activity):
+        return cls.execute(
+            'UPDATE users SET age=%s,gender=%s,weight_kg=%s,height_cm=%s,goal=%s,activity_level=%s WHERE id=%s',
+            (age, gender, weight_kg, height_cm, goal, activity, uid)
+        )
 
+    @classmethod
+    def update_password(cls, uid, new_pwd):
+        return cls.execute(
+            'UPDATE users SET password_hash=%s WHERE id=%s',
+            (hash_password(new_pwd), uid)
+        )
 
-def is_authenticated() -> bool:
-    """Check if a valid user session is active."""
-    return 'user_id' in session
+    @classmethod
+    def get_all(cls):
+        return cls.fetch_all(
+            'SELECT id,name,email,role,created_at FROM users ORDER BY created_at DESC'
+        )
 
+    # ──────────────────────────────────────────────────────────────────────
+    # ADMIN CONTROL PANEL METHODS
+    # ──────────────────────────────────────────────────────────────────────
 
-def get_current_user_id():
-    """Retrieve the logged-in user's primary key ID."""
-    return session.get('user_id')
+    @classmethod
+    def get_all_detailed(cls, search=''):
+        if search:
+            return cls.fetch_all(
+                'SELECT id,name,email,role,phone,is_active,created_at,'
+                'age,gender,weight_kg,height_cm,goal '
+                'FROM users WHERE name LIKE %s OR email LIKE %s '
+                'ORDER BY created_at DESC',
+                (f'%{search}%', f'%{search}%')
+            )
+        return cls.fetch_all(
+            'SELECT id,name,email,role,phone,is_active,created_at,'
+            'age,gender,weight_kg,height_cm,goal '
+            'FROM users ORDER BY created_at DESC'
+        )
 
+    @classmethod
+    def count_all(cls):
+        row = cls.fetch_one('SELECT COUNT(*) AS cnt FROM users')
+        return int(row['cnt']) if row else 0
 
-def is_admin() -> bool:
-    """Check if the current session belongs to an administrator."""
-    return session.get('role') == 'admin'
+    @classmethod
+    def count_active_today(cls):
+        row = cls.fetch_one(
+            "SELECT COUNT(DISTINCT user_id) AS cnt FROM calorie_logs WHERE log_date = CURDATE()"
+        )
+        return int(row['cnt']) if row else 0
 
+    @classmethod
+    def count_new_this_week(cls):
+        row = cls.fetch_one(
+            "SELECT COUNT(*) AS cnt FROM users WHERE created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)"
+        )
+        return int(row['cnt']) if row else 0
 
-def validate_password_strength(password: str) -> bool:
-    """
-    Validates password strength:
-    - Minimum 8 characters
-    - Contains at least one number
-    - Contains at least one uppercase letter
-    """
-    if len(password) < 8:
-        return False
-    if not re.search(r"\d", password):
-        return False
-    if not re.search(r"[A-Z]", password):
-        return False
-    return True
+    @classmethod
+    def admin_update(cls, uid, name, email, role, is_active):
+        return cls.execute(
+            'UPDATE users SET name=%s, email=%s, role=%s, is_active=%s WHERE id=%s',
+            (name, email, role, is_active, uid)
+        )
+
+    @classmethod
+    def set_active(cls, uid, is_active):
+        return cls.execute('UPDATE users SET is_active=%s WHERE id=%s', (is_active, uid))
+
+    @classmethod
+    def admin_delete(cls, uid):
+        tables = ['meals', 'calorie_logs', 'custom_foods', 'bmi_records', 'notifications',
+                  'macro_targets', 'sleep_logs', 'mood_logs', 'weight_logs', 'workouts',
+                  'medicines', 'medicine_logs', 'health_expenses', 'support_messages']
+        for t in tables:
+            try:
+                cls.execute(f'DELETE FROM {t} WHERE user_id=%s', (uid,))
+            except Exception:
+                pass
+        return cls.execute('DELETE FROM users WHERE id=%s', (uid,))
+
+    @classmethod
+    def get_admins(cls):
+        return cls.fetch_all("SELECT id, email, name FROM users WHERE role='admin' AND is_active=1")
