@@ -1,8 +1,19 @@
 """
-app/auth.py — Authentication Helpers & Session Management
+app/auth.py — Authentication Helpers, Session Management & Password Hashing
 """
 from functools import wraps
-from flask import session, redirect, url_for, flash
+from flask import session, redirect, flash
+from werkzeug.security import generate_password_hash, check_password_hash
+
+
+def hash_password(password: str) -> str:
+    """Hash a plaintext password for secure storage."""
+    return generate_password_hash(password)
+
+
+def verify_password(password: str, hashed_password: str) -> bool:
+    """Verify a plaintext password against its stored hash."""
+    return check_password_hash(hashed_password, password)
 
 
 def login_required(fn):
